@@ -39,7 +39,7 @@ namespace cppcoro
 			schedule_operation(static_thread_pool* tp) noexcept : m_threadPool(tp) {}
 
 			bool await_ready() noexcept { return false; }
-			void await_suspend(std::coroutine_handle<> awaitingCoroutine) noexcept;
+			void await_suspend(stdcoro::coroutine_handle<> awaitingCoroutine) noexcept;
 			void await_resume() noexcept {}
 
 		private:
@@ -47,7 +47,7 @@ namespace cppcoro
 			friend class static_thread_pool;
 
 			static_thread_pool* m_threadPool;
-			std::coroutine_handle<> m_awaitingCoroutine;
+			stdcoro::coroutine_handle<> m_awaitingCoroutine;
 			schedule_operation* m_next;
 
 		};

@@ -1,8 +1,8 @@
-  cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10)
   
-  include_directories(../include)
+include_directories(../include)
 
-  add_library(cppcoro STATIC
+add_library(cppcoro STATIC
   async_auto_reset_event.cpp
   async_manual_reset_event.cpp
   async_mutex.cpp

@@ -21,6 +21,13 @@ namespace cppcoro
 		{
 			using awaiter_t = typename awaitable_traits<AWAITABLE&&>::awaiter_t;
 
+		// TY: GCC can't compile this class with m_func & m_awaiter defined 
+		// below. So I moved them here.
+		private:
+
+			FUNC&& m_func;
+			awaiter_t m_awaiter;
+
 		public:
 
 			fmap_awaiter(FUNC&& func, AWAITABLE&& awaitable)
@@ -38,7 +45,7 @@ namespace cppcoro
 			}
 
 			template<typename PROMISE>
-			decltype(auto) await_suspend(std::coroutine_handle<PROMISE> coro)
+			decltype(auto) await_suspend(stdcoro::coroutine_handle<PROMISE> coro)
 				noexcept(noexcept(static_cast<awaiter_t&&>(m_awaiter).await_suspend(std::move(coro))))
 			{
 				return static_cast<awaiter_t&&>(m_awaiter).await_suspend(std::move(coro));
@@ -64,11 +71,6 @@ namespace cppcoro
 					static_cast<FUNC&&>(m_func),
 					static_cast<awaiter_t&&>(m_awaiter).await_resume());
 			}
-
-		private:
-
-			FUNC&& m_func;
-			awaiter_t m_awaiter;
 
 		};
 

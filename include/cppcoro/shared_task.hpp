@@ -27,7 +27,7 @@ namespace cppcoro
 	{
 		struct shared_task_waiter
 		{
-			std::coroutine_handle<> m_continuation;
+			stdcoro::coroutine_handle<> m_continuation;
 			shared_task_waiter* m_next;
 		};
 
@@ -40,7 +40,7 @@ namespace cppcoro
 				bool await_ready() const noexcept { return false; }
 
 				template<typename PROMISE>
-				void await_suspend(std::coroutine_handle<PROMISE> h) noexcept
+				void await_suspend(stdcoro::coroutine_handle<PROMISE> h) noexcept
 				{
 					shared_task_promise_base& promise = h.promise();
 
@@ -78,7 +78,7 @@ namespace cppcoro
 				, m_exception(nullptr)
 			{}
 
-			std::experimental::suspend_always initial_suspend() noexcept { return {}; }
+			stdcoro::suspend_always initial_suspend() noexcept { return {}; }
 			final_awaiter final_suspend() noexcept { return {}; }
 
 			void unhandled_exception() noexcept
@@ -123,7 +123,7 @@ namespace cppcoro
 			/// waiter->m_coroutine will be resumed when the task completes.
 			/// false if the coroutine was already completed and the awaiting
 			/// coroutine can continue without suspending.
-			bool try_await(shared_task_waiter* waiter, std::coroutine_handle<> coroutine)
+			bool try_await(shared_task_waiter* waiter, stdcoro::coroutine_handle<> coroutine)
 			{
 				void* const valueReadyValue = this;
 				void* const notStartedValue = &this->m_waiters;
@@ -303,10 +303,10 @@ namespace cppcoro
 
 		struct awaitable_base
 		{
-			std::coroutine_handle<promise_type> m_coroutine;
+			stdcoro::coroutine_handle<promise_type> m_coroutine;
 			detail::shared_task_waiter m_waiter;
 
-			awaitable_base(std::coroutine_handle<promise_type> coroutine) noexcept
+			awaitable_base(stdcoro::coroutine_handle<promise_type> coroutine) noexcept
 				: m_coroutine(coroutine)
 			{}
 
@@ -315,7 +315,7 @@ namespace cppcoro
 				return !m_coroutine || m_coroutine.promise().is_ready();
 			}
 
-			bool await_suspend(std::coroutine_handle<> awaiter) noexcept
+			bool await_suspend(stdcoro::coroutine_handle<> awaiter) noexcept
 			{
 				m_waiter.m_continuation = awaiter;
 				return m_coroutine.promise().try_await(&m_waiter, m_coroutine);
@@ -328,7 +328,7 @@ namespace cppcoro
 			: m_coroutine(nullptr)
 		{}
 
-		explicit shared_task(std::coroutine_handle<promise_type> coroutine)
+		explicit shared_task(stdcoro::coroutine_handle<promise_type> coroutine)
 			: m_coroutine(coroutine)
 		{
 			// Don't increment the ref-count here since it has already been
@@ -451,7 +451,7 @@ namespace cppcoro
 			}
 		}
 
-		std::coroutine_handle<promise_type> m_coroutine;
+		stdcoro::coroutine_handle<promise_type> m_coroutine;
 
 	};
 
@@ -479,7 +479,7 @@ namespace cppcoro
 		shared_task<T> shared_task_promise<T>::get_return_object() noexcept
 		{
 			return shared_task<T>{
-				std::coroutine_handle<shared_task_promise>::from_promise(*this)
+				stdcoro::coroutine_handle<shared_task_promise>::from_promise(*this)
 			};
 		}
 
@@ -487,14 +487,14 @@ namespace cppcoro
 		shared_task<T&> shared_task_promise<T&>::get_return_object() noexcept
 		{
 			return shared_task<T&>{
-				std::coroutine_handle<shared_task_promise>::from_promise(*this)
+				stdcoro::coroutine_handle<shared_task_promise>::from_promise(*this)
 			};
 		}
 
 		inline shared_task<void> shared_task_promise<void>::get_return_object() noexcept
 		{
 			return shared_task<void>{
-				std::coroutine_handle<shared_task_promise>::from_promise(*this)
+				stdcoro::coroutine_handle<shared_task_promise>::from_promise(*this)
 			};
 		}
 	}
@@ -503,7 +503,19 @@ namespace cppcoro
 	auto make_shared_task(AWAITABLE awaitable)
 		-> shared_task<detail::remove_rvalue_reference_t<typename awaitable_traits<AWAITABLE>::await_result_t>>
 	{
-		co_return co_await static_cast<AWAITABLE&&>(awaitable);
+		//co_return co_await static_cast<AWAITABLE&&>(awaitable);
+		// TY: GCC ICE on the above line. Presumable when 
+		// co_await static_cast<AWAITABLE&&>(awaitable) -> void
+		using return_type = decltype(co_await static_cast<AWAITABLE&&>(awaitable));
+		if constexpr (std::is_void_v<return_type>)
+		{
+			co_await static_cast<AWAITABLE&&>(awaitable);
+		}
+		else 
+		{
+			auto ret = co_await static_cast<AWAITABLE&&>(awaitable);
+			co_return ret;
+		}
 	}
 }
 
