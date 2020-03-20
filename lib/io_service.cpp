@@ -471,12 +471,12 @@ void cppcoro::io_service::notify_work_finished() noexcept
 	}
 }
 
+#if CPPCORO_OS_WINNT
+
 cppcoro::detail::win32::handle_t cppcoro::io_service::native_iocp_handle() noexcept
 {
 	return m_iocpHandle.handle();
 }
-
-#if CPPCORO_OS_WINNT
 
 void cppcoro::io_service::ensure_winsock_initialised()
 {
@@ -642,7 +642,7 @@ bool cppcoro::io_service::try_process_one_event(bool waitForEvent)
 			{
 				// This was a coroutine scheduled via a call to
 				// io_service::schedule().
-				std::experimental::coroutine_handle<>::from_address(
+				std::coroutine_handle<>::from_address(
 					reinterpret_cast<void*>(completionKey)).resume();
 				return true;
 			}
@@ -716,7 +716,7 @@ cppcoro::io_service::timer_thread_state::timer_thread_state()
 	: m_wakeUpEvent(create_auto_reset_event())
 	, m_waitableTimerEvent(create_waitable_timer_event())
 #endif
-	, m_newlyQueuedTimers(nullptr)
+	: m_newlyQueuedTimers(nullptr)
 	, m_timerCancellationRequested(false)
 	, m_shutDownRequested(false)
 	, m_thread([this] { this->run(); })
@@ -911,7 +911,7 @@ void cppcoro::io_service::timer_thread_state::wake_up_timer_thread() noexcept
 }
 
 void cppcoro::io_service::schedule_operation::await_suspend(
-	std::experimental::coroutine_handle<> awaiter) noexcept
+	std::coroutine_handle<> awaiter) noexcept
 {
 	m_awaiter = awaiter;
 	m_service.schedule_impl(this);
@@ -947,7 +947,7 @@ bool cppcoro::io_service::timed_schedule_operation::await_ready() const noexcept
 }
 
 void cppcoro::io_service::timed_schedule_operation::await_suspend(
-	std::experimental::coroutine_handle<> awaiter)
+	std::coroutine_handle<> awaiter)
 {
 	m_scheduleOperation.m_awaiter = awaiter;
 

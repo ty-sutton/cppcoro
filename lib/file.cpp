@@ -39,6 +39,8 @@ std::uint64_t cppcoro::file::size() const
 #endif
 }
 
+#if CPPCORO_OS_WINNT
+
 cppcoro::file::file(detail::win32::safe_handle&& fileHandle) noexcept
 	: m_fileHandle(std::move(fileHandle))
 {
@@ -166,3 +168,5 @@ cppcoro::detail::win32::safe_handle cppcoro::file::open(
 
 	return std::move(fileHandle);
 }
+
+#endif

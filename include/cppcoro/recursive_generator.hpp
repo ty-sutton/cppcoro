@@ -6,8 +6,8 @@
 #define CPPCORO_RECURSIVE_GENERATOR_HPP_INCLUDED
 
 #include <cppcoro/generator.hpp>
+#include <cppcoro/coroutine.hpp>
 
-#include <experimental/coroutine>
 #include <type_traits>
 #include <utility>
 #include <cassert>
@@ -87,7 +87,7 @@ namespace cppcoro
 						return this->m_childPromise == nullptr;
 					}
 
-					void await_suspend(std::experimental::coroutine_handle<promise_type>) noexcept
+					void await_suspend(std::coroutine_handle<promise_type>) noexcept
 					{}
 
 					void await_resume()
@@ -126,7 +126,7 @@ namespace cppcoro
 
 			void destroy() noexcept
 			{
-				std::experimental::coroutine_handle<promise_type>::from_promise(*this).destroy();
+				std::coroutine_handle<promise_type>::from_promise(*this).destroy();
 			}
 
 			void throw_if_exception()
@@ -139,7 +139,7 @@ namespace cppcoro
 
 			bool is_complete() noexcept
 			{
-				return std::experimental::coroutine_handle<promise_type>::from_promise(*this).done();
+				return std::coroutine_handle<promise_type>::from_promise(*this).done();
 			}
 
 			T& value() noexcept
@@ -167,7 +167,7 @@ namespace cppcoro
 
 			void resume() noexcept
 			{
-				std::experimental::coroutine_handle<promise_type>::from_promise(*this).resume();
+				std::coroutine_handle<promise_type>::from_promise(*this).resume();
 			}
 
 			std::add_pointer_t<T> m_value;

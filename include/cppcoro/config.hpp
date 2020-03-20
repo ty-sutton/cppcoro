@@ -150,4 +150,13 @@
 # define CPPCORO_CPU_CACHE_LINE 64
 #endif
 
+/// \def CPPCORO_STD_CORO
+/// Defined to 1 if the std lib has <coroutine>,
+/// 0 if it has <experimental/coroutine>
+#if CPPCORO_COMPILER_GCC || CPPCORO_COMPILER_MSVC
+# define CPPCORO_STD_CORO 1
+#else  
+# define CPPCORO_STD_CORO 0
+#endif
+
 #endif

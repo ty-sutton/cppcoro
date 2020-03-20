@@ -6,6 +6,7 @@
 #define CPPCORO_NET_SOCKET_ACCEPT_OPERATION_HPP_INCLUDED
 
 #include <cppcoro/config.hpp>
+#include <cppcoro/coroutine.hpp>
 #include <cppcoro/cancellation_token.hpp>
 #include <cppcoro/cancellation_registration.hpp>
 
@@ -15,7 +16,6 @@
 
 # include <atomic>
 # include <optional>
-# include <experimental/coroutine>
 
 namespace cppcoro
 {

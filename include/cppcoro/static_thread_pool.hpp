@@ -5,13 +5,14 @@
 #ifndef CPPCORO_STATIC_THREAD_POOL_HPP_INCLUDED
 #define CPPCORO_STATIC_THREAD_POOL_HPP_INCLUDED
 
+#include <cppcoro/coroutine.hpp>
+
 #include <atomic>
 #include <cstdint>
 #include <memory>
 #include <thread>
 #include <vector>
 #include <mutex>
-#include <experimental/coroutine>
 
 namespace cppcoro
 {
@@ -38,7 +39,7 @@ namespace cppcoro
 			schedule_operation(static_thread_pool* tp) noexcept : m_threadPool(tp) {}
 
 			bool await_ready() noexcept { return false; }
-			void await_suspend(std::experimental::coroutine_handle<> awaitingCoroutine) noexcept;
+			void await_suspend(std::coroutine_handle<> awaitingCoroutine) noexcept;
 			void await_resume() noexcept {}
 
 		private:
@@ -46,7 +47,7 @@ namespace cppcoro
 			friend class static_thread_pool;
 
 			static_thread_pool* m_threadPool;
-			std::experimental::coroutine_handle<> m_awaitingCoroutine;
+			std::coroutine_handle<> m_awaitingCoroutine;
 			schedule_operation* m_next;
 
 		};

@@ -6,12 +6,12 @@
 #define CPPCORO_FILE_WRITE_OPERATION_HPP_INCLUDED
 
 #include <cppcoro/config.hpp>
+#include <cppcoro/coroutine.hpp>
 #include <cppcoro/cancellation_registration.hpp>
 #include <cppcoro/cancellation_token.hpp>
 
 #include <atomic>
 #include <optional>
-#include <experimental/coroutine>
 
 #if CPPCORO_OS_WINNT
 # include <cppcoro/detail/win32.hpp>
